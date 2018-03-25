@@ -1,11 +1,18 @@
 <?php
 
 return [
+
     'resolve' => [
         'method' => 'POST',
         'params' => [
-            'bank_code' => 'destbankcode',
-            'bank_account_number' => 'recipientaccount',
+            'validate_option' => 'validateoption', //(SMS | VOICE)
+            'authorization_model' => 'authmodel', //(BVN | NOAUTH)
+            'card.number' => 'cardno',
+            'card.cvv' => 'cvv',
+            'card.issuing_country' => 'country',
+            'card.expiry_month' => 'expirymonth',
+            'card.expiry_year' => 'expiryyear',
+            'bvn' => 'bvn',
         ],
         'url' => 'pay/resolveaccount',
         'validate' => [

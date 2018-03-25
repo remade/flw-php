@@ -56,7 +56,7 @@ class Flutterwave {
      * Available Flutterwave endpoints
      * @var array
      */
-    protected $modules = ['account'];
+    protected $modules = ['accounts', 'banks', 'cards'];
 
     /**
      * Flutterwave constructor.
@@ -160,7 +160,7 @@ class Flutterwave {
                     //Iterate through the preparation
 
                     if(strtolower($preparation) == '3des'){
-                        $data[$key] = Encryption::encrypt3Des($data[$key], $this->merchantKey);
+                        $data[$key] = Encryption::encrypt3Des($data[$key], $this->apiKey);
                     }
 
                 }
@@ -214,9 +214,16 @@ class Flutterwave {
 
         //Now we are sure that Module and Method exists
         $endpoint = $this->modules[$this->module][$method];
+        $params = isset($endpoint['params'])? $endpoint['params'] : [];
+        $validate = isset($endpoint['validate'])? $endpoint['validate'] : [];
+        $prepare = isset($endpoint['prepare'])? $endpoint['prepare'] : [];
+        $method = isset($endpoint['method'])? $endpoint['method'] : 'POST';
+        $url = isset($endpoint['url'])? $endpoint['url'] : '';
+
+        $requestData = isset($parameters[0])? $parameters[0] : [];
 
         //Validate
-        $data = $this->validate($parameters[0], $endpoint['params'], $endpoint['validate'], $endpoint['prepare']);
+        $data = $this->validate($requestData, $params, $validate, $prepare);
         $data['merchantid'] = $this->merchantKey;
 
         //Make Request
@@ -232,8 +239,10 @@ class Flutterwave {
             'http_errors' => false,
         ];
 
+        //Reset module
+        $this->module = '';
 
-        $response = $client->request($endpoint['method'], $endpoint['url'], $requestOptions);
+        $response = $client->request($method, $url, $requestOptions);
         return json_decode($response->getBody());
     }
 
